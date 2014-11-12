@@ -16,6 +16,7 @@ import errno
 ## IC u[x,y,0]=cos(x)+cos(y) 
 ## Convergence test\
 
+#IMPORTANT TO COPY A MATRIX USE u_old = [row[:] for row in u_arr] this will unlink them...
 
 ##Physical parameter
 Pe = 1.0
@@ -74,6 +75,15 @@ def vecToMatrix(u,nx,ny):
 		for j in range(0,ny):
 			Umat[i][j]=u[i*ny+j]
     	return Umat
+#Periodic BC
+def period(k,n):
+	if k==-1:
+		return n-2
+	else:
+		if k==n:
+			return 1
+		else:
+			return k 
 ##################################################################################################################
 ############################				End			      ############################
 ##################################################################################################################
@@ -93,7 +103,7 @@ for k in range(0,3):
 	dy=L/float(Ny-1)
 
 	## time parameters 
-	dt =0.01*dx*dx
+	dt =0.1*dx*dx
 	#to make sure tend is reached and stability ok
 	#dt = tend/float(int(tend/dt)+1)
 
@@ -130,11 +140,12 @@ for k in range(0,3):
 		#print repr(t)
 		#update u_vec
 		#u_vec = np.dot(A,u_vec)
-		u_old = u_arr
+		u_old = [row[:] for row in u_arr]
 		for i in range(0,Nx):
 			for j in range(0,Ny):
-				u_arr[i][j]=u_old[i][j]*(1.-2.*(lx + ly)) + (u_old[(i-1)%Nx][j]+u_old[(i+1)%Nx][j])*lx+(u_old[i][(j-1)%Ny]+u_old[i][(j+1)%Ny])*ly
-					    
+				u_arr[i][j]=u_old[i][j]*(1.-2.*(lx + ly)) + (u_old[period(i-1,Nx)][j]+u_old[period(i+1,Nx)][j])*lx+(u_old[i][period(j-1,Ny)]+u_old[i][period(j+1,Ny)])*ly
+
+        print repr(u_arr[Nx-1][Ny-1])			    
 	#u_arr=vecToMatrix(u_vec,Nx,Ny)
 	##Calculate the error
 	
@@ -143,8 +154,8 @@ for k in range(0,3):
 		for j in range(0,Ny):
 			f[i][j] =u_arr[i][j]- u_exact(i*dx,j*dy,t,Pe)
 			f[i][j]=f[i][j]**2
-
-        err=errorL2(f,dx,dy,Nx,Ny)
+	
+        err=sqrt(errorL2(f,dx,dy,Nx,Ny))
 	error.append(err)
 	print 'Calculate the error  for ' + repr(Nx) + ' : ' + repr(err)
 

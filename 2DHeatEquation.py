@@ -133,7 +133,7 @@ while t<=tend :
 	u_old=u_arr
 	for i in range(0,Nx):
 			for j in range(0,Ny):
-				u_arr[i][j]=u_old[i][j]*(1.-2.*(lx+ly))+(u_old[(i-1)%Nx][j]+u_old[(i+1)%Nx][j])*lx+(u_old[i][(j-1)%Ny]+u_old[i][(j+1)%Ny])*ly
+				u_arr[i][j]=u_old[i][j]*(1.-2.*(lx+ly))+(u_old[(i-1)%(Nx-1)][j]+u_old[(i+1)%(Nx-1)][j])*lx+(u_old[i][(j-1)%(Ny-1)]+u_old[i][(j+1)%(Ny-1)])*ly
 	step=step+1
 	if step%stepSize == 0:
         	step = 0
